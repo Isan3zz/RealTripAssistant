@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tmp_pytest/
+.tmp_pytest_run/
+dist/
+build/
+
+# Environment
+.env
+.env.local
+venv/
+.venv/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# IDE
+.claude/settings.local.json
+.superpowers/
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Project runtime data
+data/*.db
+data/trips/
+data/logs/
+data/traces/
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
