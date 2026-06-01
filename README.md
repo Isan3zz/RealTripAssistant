@@ -99,30 +99,25 @@ PlanRunService.run()
 
 ## LLM 工具清单（13 个，`tools/schemas.py`）
 
-### 基础工具（7 个，途牛 CLI 提供）
+每个工具的实际数据来源由 `handlers.py` 中的 handler 函数决定：
 
-| 工具名 | 来源 | 说明 |
+| 工具名 | 实际来源 | handler 调用链 |
 |---|---|---|
-| `get_current_date` | 本地 | 获取当前日期 |
-| `search_poi` | 本地 | 搜索目的地 POI（景点/餐厅/购物/住宿） |
-| `query_ticket_price` | 途牛 | 查景点门票类型和价格 |
-| `search_hotel` | 途牛 | 搜索目的地酒店 |
-| `get_hotel_detail` | 途牛 | 查看指定酒店详情 |
-| `search_flight` | 途牛 | 搜索国内航班 |
-| `search_train` | 途牛 | 查询火车车次 |
+| `get_current_date` | **本地** | `handlers.py:128` → Python `date.today()` |
+| `search_poi` | **高德 MCP** | `handlers.py:10` → `gaode_client.search_poi_text()` → `maps_text_search` |
+| `get_weather_forecast` | **高德 MCP** | `handlers.py:21` → `gaode_client.get_weather()` |
+| `get_driving_eta` | **高德 MCP** | `handlers.py:56` → `gaode_client.get_driving_eta()` |
+| `get_walking_route` | **高德 MCP** | `handlers.py:63` → `gaode_client._call_tool("maps_direction_walking")` |
+| `get_transit_route` | **高德 MCP** | `handlers.py:70` → `gaode_client.get_transit_eta()` |
+| `geo_encode` | **高德 MCP** | `handlers.py:77` → `gaode_client.geo_encode()` |
+| `search_around` | **高德 MCP** | `handlers.py:84` → `gaode_client.search_around()` |
+| `query_ticket_price` | **途牛 CLI** | `handlers.py:30` → `tuniu_client.query_ticket_price()` |
+| `search_hotel` | **途牛 CLI** | `handlers.py:40` → `tuniu_client.search_hotel()` |
+| `get_hotel_detail` | **途牛 CLI** | `handlers.py:50` → `tuniu_client.call_cli("hotel", …)` |
+| `search_flight` | **flight MCP → 途牛兜底** | `handlers.py:100` → `flight_client.search_flight_mcp()`，失败走 `tuniu_client.call_cli("flight", …)` |
+| `search_train` | **train MCP → 途牛兜底** | `handlers.py:136` → `train_client.search_train_mcp()`，失败走 `tuniu_client.call_cli("train", …)` |
 
-### 高德地图工具（6 个，`gaode_client.py`）
-
-| 工具名 | 说明 |
-|---|---|
-| `get_weather_forecast` | 目的地天气预报 |
-| `get_driving_eta` | 驾车路线和预计时间 |
-| `get_walking_route` | 步行路线 |
-| `get_transit_route` | 公交/地铁路线 |
-| `geo_encode` | 地址转经纬度 |
-| `search_around` | 周边 POI 搜索 |
-
-途牛工具通过 `subprocess` 调用 `tuniu` CLI（`tuniu_client.py:58`），高德工具通过 HTTP API 调用（`gaode_client.py`）。
+总结：13 个工具中，1 个纯本地、7 个走高德地图 MCP、3 个走途牛 CLI、2 个 MCP 优先途牛兜底。途牛通过 `subprocess` 调用 `tuniu` CLI（`tuniu_client.py:58`），高德通过 HTTP API（`gaode_client.py`）。
 
 ---
 
